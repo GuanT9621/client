@@ -1,4 +1,4 @@
-package com.guan.sso.client.api;
+package com.guan.sso.client.filter;
 
 import com.guan.sso.client.config.AbstractConfigurationFilter;
 import com.guan.sso.client.util.CommonUtils;
