@@ -23,7 +23,7 @@ public final class LoadProperties {
     }
 
     public String get(String key) {
-        return properties.getProperty("key");
+        return properties.getProperty(key);
     }
 
 }

@@ -6,11 +6,13 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CookiesUtils {
 
-    public static String readCookie(HttpServletRequest request, String domain, String cookieName){
+    public static final String SSO_COOKIE_NAME = "SID";
+
+    public static String readCookie(HttpServletRequest request, String cookieName){
         Cookie[] cookies =  request.getCookies();
         if(cookies != null){
             for(Cookie cookie : cookies){
-                if(cookie.getDomain().equals(domain) && cookie.getName().equals(cookieName)){
+                if(cookie.getName().equals(cookieName)){
                     return cookie.getValue();
                 }
             }
@@ -23,6 +25,14 @@ public class CookiesUtils {
         cookie.setDomain(domain);
         cookie.setPath("/");
         cookie.setMaxAge(-1);
+        response.addCookie(cookie);
+    }
+
+    public static void clearCookie(HttpServletResponse response, String domain, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, "");
+        cookie.setDomain(domain);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
 

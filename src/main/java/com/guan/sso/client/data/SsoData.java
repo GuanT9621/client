@@ -1,5 +1,8 @@
 package com.guan.sso.client.data;
 
+/**
+ * Save the Sso Result
+ */
 public class SsoData {
 
     private boolean valid;
@@ -17,6 +20,14 @@ public class SsoData {
 
     public String getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "SsoData{" +
+                "valid=" + valid +
+                ", id='" + id + '\'' +
+                '}';
     }
 
 }

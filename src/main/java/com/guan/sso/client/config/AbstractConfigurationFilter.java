@@ -1,5 +1,7 @@
 package com.guan.sso.client.config;
 
+import com.guan.sso.client.grpc.client.SsoClient;
+import com.guan.sso.client.grpc.stub.SsoServiceGrpc;
 import com.guan.sso.client.util.CommonUtils;
 import com.guan.sso.client.util.LoadProperties;
 import org.slf4j.Logger;
@@ -9,6 +11,9 @@ import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
+/**
+ * load properties and instantiate ssoClient ssoServiceBlockingStub
+ */
 public abstract class  AbstractConfigurationFilter implements Filter{
 
     /**
@@ -18,21 +23,24 @@ public abstract class  AbstractConfigurationFilter implements Filter{
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+    protected SsoClient ssoClient;
+
+    protected SsoServiceGrpc.SsoServiceBlockingStub ssoServiceBlockingStub;
+
     /**
-     * The URL to the SSO Server : {protocol}:{hostName}:{port}
+     * properties file
+     */
+    protected LoadProperties loadProperties;
+
+    /**
+     * The URL to the SSO Server : {hostName}:{port}
      */
     protected String ssoServerUrl;
 
     /**
-     * The Top-Level Domain : google.com
+     * The Top-Level Domain : domain.com
      */
     protected String topLevelDomain;
-
-    private String host;
-    private String port;
-    private String database;
-    private String password;
-    private String timeout;
 
     /**
      * load ssoServerUrl & topLevelDomain value
@@ -45,11 +53,20 @@ public abstract class  AbstractConfigurationFilter implements Filter{
         if(CommonUtils.isBlank(configFileLocationUrl)) {
             throw new IllegalArgumentException("[ERROR] unable to find file in path : " + configFileLocationUrl);
         }
-        LoadProperties loadProperties = new LoadProperties(configFileLocationUrl);
+        loadProperties = new LoadProperties(configFileLocationUrl);
         topLevelDomain = loadProperties.get("topLevelDomain");
         ssoServerUrl = loadProperties.get("ssoServerUrl");
         if(CommonUtils.isBlank(topLevelDomain) || CommonUtils.isBlank(ssoServerUrl)) {
-            throw new IllegalArgumentException("[ERROR] illegal argument : topLevelDomain or ssoServerUrl");
+            logger.error("ERROR illegal argument : topLevelDomain or ssoServerUrl ");
+            throw new IllegalArgumentException("[ERROR] illegal argument : topLevelDomain or ssoServerUrl ");
+        }
+        String[] strings = ssoServerUrl.split(":");
+        try {
+            ssoClient = new SsoClient(strings[0], Integer.valueOf(strings[1]));
+            ssoServiceBlockingStub = ssoClient.getSsoServiceBlockingStub();
+        } catch (Exception e) {
+            logger.error("ERROR illegal ssoServerUrl : must be match {hostName}:{port} like 127.0.0.2:3652 ");
+            throw new IllegalArgumentException("ERROR illegal ssoServerUrl : must be match {hostName}:{port} like 127.0.0.2:3652 ");
         }
     }
 
